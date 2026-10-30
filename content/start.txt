@@ -1,0 +1,1 @@
+Bu fayl faqat start rasmi uchun joy belgisi: yonida start.jpg (yoki .png) bo'lsa, /start da o'sha rasm yuboriladi.

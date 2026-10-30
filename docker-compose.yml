@@ -1,0 +1,11 @@
+services:
+  lovebot:
+    build: .
+    container_name: lovebot
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DB_PATH: /app/data/lovebot.db
+    volumes:
+      - ./data:/app/data
+      - ./content:/app/content:ro

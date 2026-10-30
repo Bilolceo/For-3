@@ -1,0 +1,44 @@
+[
+  {
+    "id": "hug",
+    "emoji": "🤗",
+    "title": "Bitta uzun quchoq",
+    "description": "Xohlagan payting, xohlagan joyda. Muddati yo'q, savol ham yo'q.",
+    "limit": 0
+  },
+  {
+    "id": "cafe",
+    "emoji": "☕",
+    "title": "Kafe — men to'layman",
+    "description": "Sen tanlaysan, men to'layman. Shirinlik ham mendan.",
+    "limit": 3
+  },
+  {
+    "id": "last_word",
+    "emoji": "🤝",
+    "title": "Oxirgi so'z seniki",
+    "description": "Keyingi bahsda oxirgi so'z seniki. O'z ixtiyorim bilan bervomman — bir marta.",
+    "limit": 2
+  },
+  {
+    "id": "movie",
+    "emoji": "🎬",
+    "title": "Kino kechasi — sen tanlaysan",
+    "description": "Romantik komediya bo'lsa ham. Gap yo'q. Popkorn mendan.",
+    "limit": 3
+  },
+  {
+    "id": "no_laptop",
+    "emoji": "💻",
+    "title": "Noutbuksiz kun",
+    "description": "Bir kun kod yo'q, deploy yo'q, \"bir daqiqa\" yo'q. Faqat sen.",
+    "limit": 2
+  },
+  {
+    "id": "surprise",
+    "emoji": "🎁",
+    "title": "Kutilmagan sovg'a",
+    "description": "Ishlatsang — 7 kun ichida bir narsa olasan. Nima ekanini aytmayman.",
+    "limit": 1
+  }
+]

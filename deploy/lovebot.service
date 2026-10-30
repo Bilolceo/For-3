@@ -1,0 +1,26 @@
+# /etc/systemd/system/lovebot.service
+# O'rnatish (VPS):
+#   sudo cp deploy/lovebot.service /etc/systemd/system/
+#   sudo systemctl daemon-reload && sudo systemctl enable --now lovebot
+#   journalctl -u lovebot -f        # loglar
+[Unit]
+Description=LoveBot — shaxsiy Telegram bot
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=lovebot
+WorkingDirectory=/opt/lovebot
+ExecStart=/opt/lovebot/.venv/bin/python -m lovebot
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+# Qattiqroq xavfsizlik
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ReadWritePaths=/opt/lovebot/data
+
+[Install]
+WantedBy=multi-user.target

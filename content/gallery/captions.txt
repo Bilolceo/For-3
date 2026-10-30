@@ -1,0 +1,4 @@
+# Har qatorda: fayl nomi | rasm ostidagi so'z. Rasmlar fayl nomi bo'yicha tartiblanadi (01.jpg, 02.jpg …).
+# Misol:
+# 01.jpg | Birinchi uchrashuv. Universitet.
+# 02.jpg | O'sha qo'rqinchli kino kuni 😄

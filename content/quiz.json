@@ -1,0 +1,74 @@
+[
+  {
+    "question": "Biz birinchi marta qayerda ko'rishganmiz?",
+    "options": ["Universitetda", "Kafeda", "Do'stlar to'yida", "Internetda"],
+    "answer": 0,
+    "hint": "Darslar, koridorlar… o'sha yer"
+  },
+  {
+    "question": "Men eng ko'p ishlatadigan dasturlash tili?",
+    "options": ["Python", "JavaScript", "Go", "Rust"],
+    "answer": 0,
+    "hint": "Ilonni o'yla 🐍"
+  },
+  {
+    "question": "Birinchi birga ko'rgan kinomiz?",
+    "options": ["Interstellar", "Titanic", "Obsessiya", "La La Land"],
+    "answer": 2,
+    "hint": "Qo'rqinchli edi… lekin yoningda men bor edim"
+  },
+  {
+    "question": "Senga birinchi nima sovg'a qilganman?",
+    "options": ["Gul", "Kitob", "Shokolad", "Klaviatura"],
+    "answer": 1,
+    "hint": "Hali ham javonda turibdi"
+  },
+  {
+    "question": "Men eng ko'p qadrlaydigan narsa?",
+    "options": ["Pul", "Sadoqat", "Mashhurlik", "Bo'sh vaqt"],
+    "answer": 1,
+    "hint": "Erkakning eng muhim tomoni"
+  },
+  {
+    "question": "Bu botni kim yozgan?",
+    "options": ["ChatGPT", "Sen", "Bilol — sen uchun", "Noma'lum hacker"],
+    "answer": 2,
+    "hint": "Yurakdan 🤍"
+  },
+  {
+    "question": "Qachondan beri gaplashamiz?",
+    "options": ["14-fevral 2026", "26-mart 2026", "1-may 2026", "8-mart 2026"],
+    "answer": 1,
+    "hint": "Taymer buni har soniya sanab turibdi"
+  },
+  {
+    "question": "Mening ismim?",
+    "options": ["Bilol", "Levi", "Bot", "Admin"],
+    "answer": 0,
+    "hint": "Eng oson savol — yoki eng muhimi"
+  },
+  {
+    "question": "Birinchi kinomiz qanaqa janrda edi?",
+    "options": ["Komediya", "Qo'rqinchli", "Romantik", "Fantastika"],
+    "answer": 1,
+    "hint": "Oxirigacha ko'rding — bu xarakter"
+  },
+  {
+    "question": "Begona odam bu botga yozsa nima ko'radi?",
+    "options": ["Salom!", "403 Forbidden: bu yurak band", "Hech narsa", "Reklama"],
+    "answer": 1,
+    "hint": "Dasturchilar \"yo'q\"ni shunaqa aytadi"
+  },
+  {
+    "question": "Men o'zimni qanaqa odam deb bilaman?",
+    "options": ["So'zida turadigan", "Ko'p gapiradigan", "Shoshqaloq", "Beparvo"],
+    "answer": 0,
+    "hint": "Erkakning so'zi — bitta"
+  },
+  {
+    "question": "Muammo bo'lsa men nima qilaman?",
+    "options": ["Jim ketaman", "Baqiraman", "O'tirib gaplashaman", "Unutaman"],
+    "answer": 2,
+    "hint": "Biz muammoga qarshimiz — bir-birimizga emas"
+  }
+]
