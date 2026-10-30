@@ -13,9 +13,9 @@ RUN pip install -r requirements.txt
 COPY lovebot ./lovebot
 COPY content ./content
 
-# Railway/Render volume'lari root egaligida mount bo'ladi — shuning uchun non-root user ishlatilmaydi.
-# Ma'lumotlar bazasi shu papkada; uni volume qilib ulang (Railway: Volume → /app/data).
+# Ma'lumotlar bazasi /app/data da — uni volume qilib ulang (Railway: Volume → /app/data;
+# docker-compose: ./data:/app/data). Railway Dockerfile'dagi VOLUME buyrug'ini qabul qilmaydi,
+# volume'lar root egaligida mount bo'lgani uchun non-root user ham ishlatilmaydi.
 RUN mkdir -p /app/data
-VOLUME ["/app/data"]
 
 CMD ["python", "-m", "lovebot"]
