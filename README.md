@@ -106,6 +106,15 @@ docker compose up -d --build
 docker compose logs -f
 ```
 
+**Variant C — Railway (GitHub'dan avtomatik deploy):**
+1. [railway.app](https://railway.app) → **New Project → Deploy from GitHub repo** → `Bilolceo/For-3`. Railway `Dockerfile` va `railway.json` ni o'zi topadi.
+2. Service → **Variables** → `.env.example` dagi hamma o'zgaruvchini qo'sh (`BOT_TOKEN`, `MY_ID`, `HER_ID`, `MY_NAME`, `HER_NAME`, `TOGETHER_SINCE`, `GIFT_LAT`, `GIFT_LON`, `GIFT_TITLE`, `GIFT_ADDRESS`, `TZ`, vaqtlar). `DB_PATH` ni **yozma** — Dockerfile'da `/app/data/lovebot.db` turibdi.
+3. Service → **Settings → Volumes → Add Volume** → mount path: `/app/data`. Busiz har deploy'da baza (kuponlar, kalendar kuni, ochilgan xatlar) o'chib ketadi.
+4. **Settings → Networking** — hech narsa qo'shma (bot polling ishlaydi, port kerak emas). **Replicas = 1** bo'lsin — ikkita nusxa bo'lsa Telegram "Conflict" beradi.
+5. Deploy → **Logs** da `Run polling for bot @for_aida_bot` chiqsa — tayyor. Har `git push` da Railway qayta deploy qiladi.
+
+Railway'ga ko'chirgach **lokal botni to'xtat** — bir vaqtda ikkita polling bo'lmasin.
+
 Ikkala holda ham DB `data/lovebot.db` da — uni yo'qotma (kuponlar, xatlar tarixi shu yerda).
 
 ## Testlar
