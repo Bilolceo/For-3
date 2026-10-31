@@ -170,9 +170,15 @@
     return api;
   }
 
+  function playableUrl(url) {
+    // Katalogdagi kino — server orqali oqimlanadi (Google Drive brauzerga HTML sahifa beradi)
+    const m = (session.movies || []).find((x) => x.url && x.url === url);
+    return m && m.play_url ? `${m.play_url}?t=${session.token}` : url;
+  }
+
   function loadSource(url, kind) {
     if (player && player._poll) clearInterval(player._poll);
-    player = kind === "youtube" ? youtubePlayer(url) : filePlayer(url);
+    player = kind === "youtube" ? youtubePlayer(url) : filePlayer(playableUrl(url));
     currentUrl = url;
     el.empty.hidden = true;
     el.source.value = url;

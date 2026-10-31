@@ -7,6 +7,7 @@ from pathlib import Path
 from urllib.parse import urlencode
 
 import pytest
+from aiohttp import web
 from aiohttp.test_utils import TestClient, TestServer
 
 from lovebot.config import load_settings
@@ -114,6 +115,70 @@ async def test_session_and_static(client: TestClient):
     r = await client.post("/api/session", json={"token": make_token(1, TOKEN)})
     body = await r.json()
     assert body["is_admin"] is True and body["movies"] == []
+
+
+@pytest.fixture
+async def upstream():
+    """Soxta video manbasi: Range so'rovlariga 206 qaytaradi, 'html' yo'li esa Drive'ning ogohlantirish sahifasini taqlid qiladi."""
+    data = bytes(range(256)) * 4  # 1024 bayt
+
+    async def video(request: web.Request) -> web.Response:
+        rng = request.headers.get("Range")
+        if rng:
+            start, end = rng.replace("bytes=", "").split("-")
+            start, end = int(start), int(end or len(data) - 1)
+            return web.Response(
+                status=206, body=data[start : end + 1], content_type="video/mp4",
+                headers={"Content-Range": f"bytes {start}-{end}/{len(data)}", "Accept-Ranges": "bytes"},
+            )
+        return web.Response(body=data, content_type="video/mp4", headers={"Accept-Ranges": "bytes"})
+
+    async def html(_: web.Request) -> web.Response:
+        return web.Response(text="<html>virus scan warning</html>", content_type="text/html")
+
+    app = web.Application()
+    app.add_routes([web.get("/v.mp4", video), web.get("/warn", html)])
+    async with TestServer(app) as srv:
+        yield srv
+
+
+@pytest.fixture
+async def media_client(env, tmp_path: Path, upstream: TestServer):
+    from lovebot.content import Content, Movie
+
+    settings = load_settings()
+    db = Database(tmp_path / "m.db")
+    await db.connect()
+    content = Content(movies=[
+        Movie(title="Kino", url=str(upstream.make_url("/v.mp4"))),
+        Movie(title="Havolasiz"),
+        Movie(title="Ogohlantirish", url=str(upstream.make_url("/warn"))),
+    ])
+    async with TestClient(TestServer(build_web_app(settings, db, content))) as c:
+        yield c
+    await db.close()
+
+
+async def test_media_proxy(media_client: TestClient):
+    t = make_token(2, TOKEN)
+    r = await media_client.post("/api/session", json={"token": t})
+    movies = (await r.json())["movies"]
+    assert movies[0]["play_url"] == "/media/0" and movies[1]["play_url"] == ""
+
+    assert (await media_client.get("/media/0")).status == 403
+    assert (await media_client.get(f"/media/1?t={t}")).status == 404
+    assert (await media_client.get(f"/media/9?t={t}")).status == 404
+
+    r = await media_client.get(f"/media/0?t={t}")
+    assert r.status == 200 and r.headers["Content-Type"].startswith("video/mp4")
+    assert len(await r.read()) == 1024
+
+    r = await media_client.get(f"/media/0?t={t}", headers={"Range": "bytes=10-19"})
+    assert r.status == 206 and r.headers["Content-Range"] == "bytes 10-19/1024"
+    assert await r.read() == bytes(range(10, 20))
+
+    r = await media_client.get(f"/media/2?t={t}")
+    assert r.status == 502  # HTML qaytgan manba — videoga yaroqsiz
 
 
 async def test_ws_sync_and_signal(client: TestClient):

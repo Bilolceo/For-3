@@ -7,6 +7,7 @@ import logging
 import time
 from pathlib import Path
 
+import aiohttp
 from aiohttp import WSMsgType, web
 
 from ..config import Settings
@@ -23,6 +24,12 @@ SETTINGS_KEY = web.AppKey("settings", Settings)
 DB_KEY = web.AppKey("db", Database)
 ROOM_KEY = web.AppKey("room", Room)
 CONTENT_KEY = web.AppKey("content", Content)
+HTTP_KEY = web.AppKey("http", aiohttp.ClientSession)
+
+# Google Drive va shunga o'xshash xostlar brauzerga "virus tekshiruvi" HTML sahifasini beradi,
+# serverga esa to'g'ri faylni — shuning uchun katalogdagi kinolar server orqali oqimlanadi.
+MEDIA_UA = "Mozilla/5.0 (compatible; LoveBot/1.0)"
+MEDIA_PASS_HEADERS = ("Content-Type", "Content-Length", "Content-Range", "Accept-Ranges", "Last-Modified", "ETag")
 
 
 @web.middleware
@@ -41,6 +48,8 @@ def build_web_app(settings: Settings, db: Database, content: Content | None = No
     app[ROOM_KEY] = Room()
     app[CONTENT_KEY] = content or Content()
     app.on_startup.append(_restore_source)
+    app.on_startup.append(_open_http)
+    app.on_cleanup.append(_close_http)
     app.add_routes(
         [
             web.get("/", health),
@@ -48,10 +57,23 @@ def build_web_app(settings: Settings, db: Database, content: Content | None = No
             web.get("/app/", app_index),
             web.post("/api/session", api_session),
             web.get("/ws", ws_handler),
+            web.get("/media/{index}", media_proxy),
             web.static("/app/static", STATIC_DIR),
         ]
     )
     return app
+
+
+async def _open_http(app: web.Application) -> None:
+    app[HTTP_KEY] = aiohttp.ClientSession(
+        timeout=aiohttp.ClientTimeout(total=None, connect=20, sock_read=60),
+        headers={"User-Agent": MEDIA_UA},
+        cookie_jar=aiohttp.DummyCookieJar(),  # cookie'lar bilan Google boshqa javob beradi
+    )
+
+
+async def _close_http(app: web.Application) -> None:
+    await app[HTTP_KEY].close()
 
 
 async def start_web(app: web.Application, port: int) -> web.AppRunner:
@@ -105,9 +127,58 @@ async def api_session(request: web.Request) -> web.Response:
             "is_admin": uid == settings.my_id,
             "ice_servers": settings.ice_servers,
             "public_url": settings.public_url,
-            "movies": [m.to_dict() for m in request.app[CONTENT_KEY].movies],
+            "movies": [
+                {**m.to_dict(), "play_url": f"/media/{i}" if m.url else ""}
+                for i, m in enumerate(request.app[CONTENT_KEY].movies)
+            ],
         }
     )
+
+
+async def media_proxy(request: web.Request) -> web.StreamResponse:
+    """Katalogdagi kinoni manbadan Range bilan olib, brauzerga oqim qilib uzatadi."""
+    settings: Settings = request.app[SETTINGS_KEY]
+    uid = verify_token(request.query.get("t", ""), settings.bot_token)
+    if uid is None or uid not in settings.allowed_ids:
+        raise web.HTTPForbidden(text="403")
+    movies = request.app[CONTENT_KEY].movies
+    try:
+        movie = movies[int(request.match_info["index"])]
+    except (ValueError, IndexError):
+        raise web.HTTPNotFound(text="bunday kino yo'q")
+    if not movie.url:
+        raise web.HTTPNotFound(text="havola yo'q")
+
+    headers = {}
+    if rng := request.headers.get("Range"):
+        headers["Range"] = rng
+    http: aiohttp.ClientSession = request.app[HTTP_KEY]
+    try:
+        upstream = await http.get(movie.url, headers=headers, allow_redirects=True)
+    except aiohttp.ClientError as exc:
+        log.warning("Media manba xatosi (%s): %s", movie.title, exc)
+        raise web.HTTPBadGateway(text="manba javob bermadi")
+    try:
+        ctype = upstream.headers.get("Content-Type", "")
+        if upstream.status >= 400 or ctype.startswith("text/html"):
+            log.warning("Media manba yaroqsiz javob (%s): %s %s", movie.title, upstream.status, ctype)
+            raise web.HTTPBadGateway(text="manba video bermadi (HTML/xato qaytardi)")
+        response = web.StreamResponse(status=upstream.status)
+        for name in MEDIA_PASS_HEADERS:
+            if value := upstream.headers.get(name):
+                response.headers[name] = value
+        response.headers.setdefault("Accept-Ranges", "bytes")
+        response.headers["Cache-Control"] = "private, max-age=0"
+        await response.prepare(request)
+        try:
+            async for chunk in upstream.content.iter_chunked(256 * 1024):
+                await response.write(chunk)
+            await response.write_eof()
+        except (ConnectionResetError, aiohttp.ClientPayloadError):
+            pass  # tomoshabin seek qildi yoki yopdi — brauzer yangi Range bilan qayta keladi
+        return response
+    finally:
+        upstream.release()
 
 
 async def ws_handler(request: web.Request) -> web.WebSocketResponse:
