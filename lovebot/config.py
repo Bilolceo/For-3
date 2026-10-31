@@ -114,6 +114,26 @@ class Settings:
     love_window: tuple[tuple[int, int], tuple[int, int]]  # (HH,MM) dan (HH,MM) gacha
     calendar_time: tuple[int, int]
     quiz_per_game: int
+    public_url: str  # Mini App uchun tashqi HTTPS manzil (bo'sh bo'lsa — kino o'chiq)
+    port: int
+    turn_url: str
+    turn_user: str
+    turn_pass: str
+
+    @property
+    def cinema_enabled(self) -> bool:
+        return bool(self.public_url)
+
+    @property
+    def ice_servers(self) -> list[dict]:
+        servers: list[dict] = [{"urls": "stun:stun.l.google.com:19302"}]
+        if self.turn_url:
+            servers.append({"urls": self.turn_url, "username": self.turn_user, "credential": self.turn_pass})
+        else:
+            # Open Relay — tekin ommaviy TURN (mobil internetda P2P o'tmasa kerak bo'ladi)
+            for url in ("turn:openrelay.metered.ca:80", "turn:openrelay.metered.ca:443", "turn:openrelay.metered.ca:443?transport=tcp"):
+                servers.append({"urls": url, "username": "openrelayproject", "credential": "openrelayproject"})
+        return servers
 
     def name_of(self, user_id: int) -> str:
         return self.my_name if user_id == self.my_id else self.her_name
@@ -174,7 +194,15 @@ def load_settings(env_file: Path | None = None) -> Settings:
         love_window=_window("LOVE_WINDOW", "09:00-23:00"),
         calendar_time=_time("CALENDAR_TIME", "09:00"),
         quiz_per_game=_int("QUIZ_PER_GAME", 6),
+        public_url=_env("PUBLIC_URL").rstrip("/"),
+        port=_int("PORT", 8080),
+        turn_url=_env("TURN_URL"),
+        turn_user=_env("TURN_USER"),
+        turn_pass=_env("TURN_PASS"),
     )
+
+    if settings.public_url and not settings.public_url.startswith(("http://", "https://")):
+        raise ConfigError("PUBLIC_URL https:// bilan boshlanishi kerak")
 
     if settings.quiz_per_game < 1:
         raise ConfigError("QUIZ_PER_GAME kamida 1 bo'lishi kerak")

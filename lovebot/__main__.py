@@ -22,6 +22,7 @@ from .db import Database
 from .handlers import build_router
 from .middlewares import WhitelistMiddleware
 from .scheduler import build_scheduler
+from .web.server import build_web_app, start_web
 
 log = logging.getLogger("lovebot")
 
@@ -53,6 +54,8 @@ def _print_report(settings: Settings | None, content: Content, errors: list[str]
         print(f"{'✅' if content.hourly else '❌'} soatlik    {len(content.hourly)} ta xabar")
     print(f"{'✅' if content.game else '❌'} ikkalamiz  {len(content.game)} ta savol")
     print(f"{'✅' if content.days else '❌'} kalendar   {len(content.days)} kun")
+    if settings is not None:
+        print(f"{'✅' if settings.cinema_enabled else '⚪'} kino       {settings.public_url + '/app/' if settings.cinema_enabled else 'o‘chiq (PUBLIC_URL yo‘q)'}")
     with_photo = sum(1 for l in content.letters + content.days if l.photo)
     print(f"{'✅' if content.gallery else '⚪'} rasmlar    galereya {len(content.gallery)} ta, start rasmi {'bor' if content.start_photo else 'yo‘q'}, rasmli xatlar {with_photo} ta")
     for p in content.problems:
@@ -97,17 +100,25 @@ async def run() -> None:
     dp.include_router(build_router())
 
     scheduler = build_scheduler(bot, db, content, settings)
+    web_runner = None
 
     try:
         me = await bot.get_me()
         log.info("Bot ishga tushdi: @%s", me.username)
         await bot.set_my_commands(BOT_COMMANDS)
+        if settings.cinema_enabled:
+            web_runner = await start_web(build_web_app(settings, db), settings.port)
+            log.info("Kino xonasi: %s/app/", settings.public_url)
+        else:
+            log.info("Kino xonasi o'chiq (PUBLIC_URL yo'q)")
         scheduler.start()
         await bot.delete_webhook(drop_pending_updates=True)
         await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
     finally:
         if scheduler.running:
             scheduler.shutdown(wait=False)
+        if web_runner is not None:
+            await web_runner.cleanup()
         await db.close()
         await bot.session.close()
 

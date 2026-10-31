@@ -1,6 +1,6 @@
 from aiogram import Router
 
-from . import admin, calendar, coupons, gallery, game, letters, mood, quiz, reasons, start, timer
+from . import admin, calendar, cinema, coupons, gallery, game, letters, mood, quiz, reasons, start, timer
 
 
 def build_router() -> Router:
@@ -11,6 +11,7 @@ def build_router() -> Router:
         admin.router,
         calendar.router,
         gallery.router,
+        cinema.router,
         reasons.router,
         coupons.router,
         timer.router,

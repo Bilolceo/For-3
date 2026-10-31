@@ -23,6 +23,7 @@ class Btn:
     GAME = "💬 Ikkalamiz"
     CALENDAR = "📅 Bugungi kun"
     GALLERY = "📸 Bizning rasmlar"
+    CINEMA = "🎬 Kino kechasi"
 
 
 MAIN_MENU = ReplyKeyboardMarkup(
@@ -31,7 +32,7 @@ MAIN_MENU = ReplyKeyboardMarkup(
         [KeyboardButton(text=Btn.LETTERS), KeyboardButton(text=Btn.COUPONS)],
         [KeyboardButton(text=Btn.TIMER), KeyboardButton(text=Btn.QUIZ)],
         [KeyboardButton(text=Btn.MOOD), KeyboardButton(text=Btn.GAME)],
-        [KeyboardButton(text=Btn.GALLERY)],
+        [KeyboardButton(text=Btn.GALLERY), KeyboardButton(text=Btn.CINEMA)],
     ],
     resize_keyboard=True,
     input_field_placeholder="Tugmalardan birini tanla…",

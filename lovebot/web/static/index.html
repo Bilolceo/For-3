@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="uz">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<title>Kino kechasi</title>
+<link rel="stylesheet" href="/app/static/style.css">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.5.17/hls.min.js"></script>
+</head>
+<body>
+<div id="app" hidden>
+  <header>
+    <div class="title">🎬 Kino kechasi</div>
+    <div id="status" class="status">ulanmoqda…</div>
+  </header>
+
+  <main>
+    <div id="stage">
+      <video id="player" playsinline controls preload="metadata"></video>
+      <div id="yt" hidden></div>
+      <button id="tap" class="tap" hidden>▶ Bosib davom et</button>
+      <div id="empty" class="empty">
+        <div>Hali kino tanlanmagan 🍿</div>
+        <small>Pastga video havolasini qo'y — mp4, m3u8 yoki YouTube</small>
+      </div>
+      <div id="cams">
+        <div class="cam"><video id="remote" playsinline autoplay></video><span id="remote-label">—</span></div>
+        <div class="cam"><video id="local" playsinline autoplay muted></video><span id="local-label">Sen</span></div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="row">
+      <button id="cam" class="btn">📷 Kamera</button>
+      <button id="mic" class="btn" disabled>🎤 Mikrofon</button>
+      <button id="sync" class="btn ghost" title="Ikkinchi tomonga mening holatimni yuborish">⟳ Sinxron</button>
+      <a id="browser-link" class="btn ghost" target="_blank" rel="noopener">🌐 Brauzerda</a>
+    </div>
+    <form id="source-form" class="row">
+      <input id="source" type="url" placeholder="Video havolasi (https://…mp4 / .m3u8 / youtube)" autocomplete="off">
+      <button class="btn primary" type="submit">Qo'yish</button>
+    </form>
+    <div id="hint" class="hint"></div>
+  </footer>
+</div>
+
+<div id="gate" class="gate">
+  <div class="card">
+    <div class="heart">♥</div>
+    <div id="gate-text">Kirilmoqda…</div>
+  </div>
+</div>
+
+<script src="/app/static/app.js"></script>
+</body>
+</html>
