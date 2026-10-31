@@ -126,7 +126,7 @@ Bot bilan bir jarayonda kichik veb-server (aiohttp) ko'tariladi — `PUBLIC_URL`
 - **Sinxron:** WebSocket orqali `source / play / pause / seek`; server holatni (url, pozitsiya, vaqt) saqlaydi, kech kirgan tomon shu holatga ulanadi; har 5 s da og'ish tekshiriladi.
 - **Kameralar:** WebRTC brauzerdan brauzerga (perfect negotiation), signaling — o'sha WebSocket. STUN (Google) + tekin TURN (Open Relay); o'zingizniki bo'lsa `TURN_URL/USER/PASS`.
 - **Manba:** to'g'ridan-to'g'ri `.mp4` / `.m3u8` (hls.js) yoki YouTube havolasi. Streaming saytlarni (Netflix va h.k.) qo'yib bo'lmaydi.
-- **Katalog:** `content/movies.json` — `title`, `group`, `year`, `url`. Mini App'da "🎞 Kinolar" ro'yxati chiqadi; `url` bo'sh bo'lsa kulrang. O'zingizdagi faylni Google Drive / Yandex Disk'ka qo'yib, **to'g'ridan-to'g'ri yuklab olish havolasini** yozing (brauzerda ochganda sahifa emas, video o'zi yuklanadigan havola).
+- **Katalog:** `content/movies.json` — `title`, `group`, `year`, `url`. Mini App'da "🎞 Kinolar" ro'yxati chiqadi; `url` bo'sh bo'lsa kulrang. O'zingizdagi faylni Google Drive'ga qo'yib ("Все, у кого есть ссылка" → Читатель), havolani shu ko'rinishda yozing: `https://drive.usercontent.google.com/download?id=FAYL_ID&export=download&confirm=t` (`uc?export=download` ko'rinishi katta fayllarda HTML sahifa qaytaradi — ishlamaydi). Fayl ID — Drive havolasidagi `/d/…/` yoki `id=…` qismi.
 - **Telegram ichida kamera** iOS'da ko'pincha ochilmaydi — shuning uchun "Brauzerda ochish" bor; kompyuter brauzerida eng yaxshi ishlaydi.
 
 ## Testlar

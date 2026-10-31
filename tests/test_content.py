@@ -12,7 +12,8 @@ def test_shipped_content_has_no_problems():
     assert len(content.days) == 30 and content.day(1).title == "Boshlanish" and content.day(31) is None
     assert len(content.reasons) >= 30
     assert len(content.game) >= 60 and len(content.hourly) >= 60
-    assert len(content.movies) == 15 and all(not m.url for m in content.movies)  # havolalar egasi tomonidan qo'shiladi
+    assert len(content.movies) == 15
+    assert all(m.url.startswith("https://") for m in content.movies if m.url)
 
 
 def test_movies_validation(tmp_path: Path):
