@@ -13,6 +13,7 @@ Ikki kishi uchun yozilgan shaxsiy Telegram bot. Begona odam yozsa — `403 Forbi
 | 🌤 **Kayfiyat** | Har kuni kechqurun so'rov; "Charchadim" bossa — unga dalda, senga signal |
 | 💌 **Soatlik xabarlar** | `content/hourly/` dagi 3 mavzu (sevgi, dalda, muammolarni birga hal qilish) — har soat, faqat 09:00–23:00, takrorlanmasdan |
 | 💬 **Ikkalamiz** | Bot ikkalangizga bitta savol yuboradi; javoblar faqat ikkalangiz yozgandan keyin ochiladi |
+| 🎬 **Kino kechasi** | Telegram Mini App: sinxron pleyer (biri bossa — ikkalasida), yonida WebRTC kameralar. mp4 / m3u8 / YouTube. `PUBLIC_URL` kerak |
 | 🙃 **Hazillar** | `/sudo sev_meni` → *Permission granted ❤️*, `/git_log`, `/whoami`, `/ping` |
 | 🛠 **Admin** (faqat sen) | `/stats`, `/send_reason`, `/send_mood`, `/preview_letters` |
 
@@ -116,6 +117,16 @@ docker compose logs -f
 Railway'ga ko'chirgach **lokal botni to'xtat** — bir vaqtda ikkita polling bo'lmasin.
 
 Ikkala holda ham DB `data/lovebot.db` da — uni yo'qotma (kuponlar, xatlar tarixi shu yerda).
+
+## 🎬 Kino kechasi qanday ishlaydi
+
+Bot bilan bir jarayonda kichik veb-server (aiohttp) ko'tariladi — `PUBLIC_URL` (Railway domeni) ko'rsatilgan bo'lsa.
+
+- **Kirish:** Telegram `initData` imzosi bot tokeni bilan tekshiriladi; faqat `MY_ID`/`HER_ID`. "Brauzerda ochish" havolasi 12 soatlik imzolangan token bilan.
+- **Sinxron:** WebSocket orqali `source / play / pause / seek`; server holatni (url, pozitsiya, vaqt) saqlaydi, kech kirgan tomon shu holatga ulanadi; har 5 s da og'ish tekshiriladi.
+- **Kameralar:** WebRTC brauzerdan brauzerga (perfect negotiation), signaling — o'sha WebSocket. STUN (Google) + tekin TURN (Open Relay); o'zingizniki bo'lsa `TURN_URL/USER/PASS`.
+- **Manba:** to'g'ridan-to'g'ri `.mp4` / `.m3u8` (hls.js) yoki YouTube havolasi. Streaming saytlarni (Netflix va h.k.) qo'yib bo'lmaydi.
+- **Telegram ichida kamera** iOS'da ko'pincha ochilmaydi — shuning uchun "Brauzerda ochish" bor; kompyuter brauzerida eng yaxshi ishlaydi.
 
 ## Testlar
 
