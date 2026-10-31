@@ -12,6 +12,18 @@ def test_shipped_content_has_no_problems():
     assert len(content.days) == 30 and content.day(1).title == "Boshlanish" and content.day(31) is None
     assert len(content.reasons) >= 30
     assert len(content.game) >= 60 and len(content.hourly) >= 60
+    assert len(content.movies) == 15 and all(not m.url for m in content.movies)  # havolalar egasi tomonidan qo'shiladi
+
+
+def test_movies_validation(tmp_path: Path):
+    (tmp_path / "movies.json").write_text(
+        json.dumps([{"title": "A", "url": "https://x/a.mp4", "year": 2002}, {"title": "", "url": ""}, {"title": "B", "url": "ftp://bad"}]),
+        encoding="utf-8",
+    )
+    content = load_content(tmp_path)
+    assert [(m.title, m.url, m.year) for m in content.movies] == [("A", "https://x/a.mp4", 2002), ("B", "", None)]
+    joined = "\n".join(content.problems)
+    assert "#2 title yo'q" in joined and "«B» url" in joined
 
 
 def test_days_must_be_contiguous(tmp_path: Path):

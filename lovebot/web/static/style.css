@@ -42,6 +42,14 @@ footer { padding: 10px 12px calc(10px + env(safe-area-inset-bottom)); border-top
 .btn.ghost { background: transparent; }
 #source { flex: 1; min-width: 0; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: rgba(0,0,0,0.25); color: var(--text); font-size: 14px; }
 #source::placeholder { color: var(--muted); }
+.catalog[hidden], .catalog-list[hidden] { display: none; }
+.catalog-list { max-height: 220px; overflow-y: auto; border: 1px solid var(--line); border-radius: 10px; background: rgba(0,0,0,0.25); margin-top: 6px; }
+.catalog-group { padding: 8px 12px 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+.catalog-item { display: flex; justify-content: space-between; align-items: center; gap: 8px; width: 100%; text-align: left; padding: 9px 12px; border: 0; background: transparent; color: var(--text); font-size: 14px; cursor: pointer; }
+.catalog-item:hover { background: rgba(255,255,255,0.06); }
+.catalog-item.nolink { color: var(--muted); cursor: default; }
+.catalog-item .year { font-size: 12px; color: var(--muted); }
+.catalog-item.nolink .year::after { content: " · havola yo'q"; }
 .hint { font-size: 12px; color: var(--muted); min-height: 16px; }
 .hint.warn { color: var(--warn); }
 .gate { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--bg1), var(--bg2)); z-index: 50; }

@@ -10,6 +10,7 @@ from pathlib import Path
 from aiohttp import WSMsgType, web
 
 from ..config import Settings
+from ..content import Content
 from ..db import Database
 from .auth import make_token, validate_init_data, verify_token
 from .cinema import PlayerState, Room, source_kind
@@ -21,6 +22,7 @@ CINEMA_URL_KEY = "cinema_url"
 SETTINGS_KEY = web.AppKey("settings", Settings)
 DB_KEY = web.AppKey("db", Database)
 ROOM_KEY = web.AppKey("room", Room)
+CONTENT_KEY = web.AppKey("content", Content)
 
 
 @web.middleware
@@ -32,11 +34,12 @@ async def _no_cache(request: web.Request, handler):
     return response
 
 
-def build_web_app(settings: Settings, db: Database) -> web.Application:
+def build_web_app(settings: Settings, db: Database, content: Content | None = None) -> web.Application:
     app = web.Application(client_max_size=64 * 1024, middlewares=[_no_cache])
     app[SETTINGS_KEY] = settings
     app[DB_KEY] = db
     app[ROOM_KEY] = Room()
+    app[CONTENT_KEY] = content or Content()
     app.on_startup.append(_restore_source)
     app.add_routes(
         [
@@ -102,6 +105,7 @@ async def api_session(request: web.Request) -> web.Response:
             "is_admin": uid == settings.my_id,
             "ice_servers": settings.ice_servers,
             "public_url": settings.public_url,
+            "movies": [m.to_dict() for m in request.app[CONTENT_KEY].movies],
         }
     )
 

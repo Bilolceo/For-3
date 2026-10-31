@@ -44,6 +44,17 @@ class Photo:
 
 
 @dataclass(frozen=True, slots=True)
+class Movie:
+    title: str
+    group: str = ""
+    year: int | None = None
+    url: str = ""  # bo'sh bo'lsa — ro'yxatda ko'rinadi, lekin qo'yib bo'lmaydi
+
+    def to_dict(self) -> dict:
+        return {"title": self.title, "group": self.group, "year": self.year, "url": self.url}
+
+
+@dataclass(frozen=True, slots=True)
 class Coupon:
     id: str
     emoji: str
@@ -78,6 +89,7 @@ class Content:
     days: list[Letter] = field(default_factory=list)  # 30 kunlik kalendar, slug = "01".."30"
     gallery: list[Photo] = field(default_factory=list)
     start_photo: Path | None = None
+    movies: list[Movie] = field(default_factory=list)
     problems: list[str] = field(default_factory=list)
 
     def day(self, number: int) -> Letter | None:
@@ -266,6 +278,29 @@ def _load_gallery(root: Path, problems: list[str]) -> list[Photo]:
     return photos
 
 
+def _load_movies(path: Path, problems: list[str]) -> list[Movie]:
+    if not path.exists():
+        return []
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        problems.append(f"{path.name}: JSON xato — {exc}")
+        return []
+    movies: list[Movie] = []
+    for i, item in enumerate(data, 1):
+        title = str(item.get("title", "")).strip()
+        if not title:
+            problems.append(f"{path.name}: #{i} title yo'q")
+            continue
+        url = str(item.get("url", "")).strip()
+        if url and not url.startswith(("http://", "https://")):
+            problems.append(f"{path.name}: «{title}» url https:// bilan boshlansin")
+            url = ""
+        year = item.get("year")
+        movies.append(Movie(title=title, group=str(item.get("group", "")), year=int(year) if year else None, url=url))
+    return movies
+
+
 def load_content(root: Path = CONTENT_DIR) -> Content:
     problems: list[str] = []
     content = Content(
@@ -279,6 +314,7 @@ def load_content(root: Path = CONTENT_DIR) -> Content:
         days=_load_days(root / "days", problems),
         gallery=_load_gallery(root / "gallery", problems),
         start_photo=_sidecar(root / "start.txt", PHOTO_SUFFIXES),
+        movies=_load_movies(root / "movies.json", problems),
     )
     if not content.days:
         problems.append("days/ bo'sh — kunlik kalendar ishlamaydi")

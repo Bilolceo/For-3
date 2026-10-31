@@ -56,6 +56,8 @@ def _print_report(settings: Settings | None, content: Content, errors: list[str]
     print(f"{'✅' if content.days else '❌'} kalendar   {len(content.days)} kun")
     if settings is not None:
         print(f"{'✅' if settings.cinema_enabled else '⚪'} kino       {settings.public_url + '/app/' if settings.cinema_enabled else 'o‘chiq (PUBLIC_URL yo‘q)'}")
+    with_url = sum(1 for m in content.movies if m.url)
+    print(f"{'✅' if with_url else '⚪'} kinolar    katalogda {len(content.movies)} ta, havolasi bor {with_url} ta")
     with_photo = sum(1 for l in content.letters + content.days if l.photo)
     print(f"{'✅' if content.gallery else '⚪'} rasmlar    galereya {len(content.gallery)} ta, start rasmi {'bor' if content.start_photo else 'yo‘q'}, rasmli xatlar {with_photo} ta")
     for p in content.problems:
@@ -107,7 +109,7 @@ async def run() -> None:
         log.info("Bot ishga tushdi: @%s", me.username)
         await bot.set_my_commands(BOT_COMMANDS)
         if settings.cinema_enabled:
-            web_runner = await start_web(build_web_app(settings, db), settings.port)
+            web_runner = await start_web(build_web_app(settings, db, content), settings.port)
             log.info("Kino xonasi: %s/app/", settings.public_url)
         else:
             log.info("Kino xonasi o'chiq (PUBLIC_URL yo'q)")

@@ -112,7 +112,8 @@ async def test_session_and_static(client: TestClient):
     r = await client.post("/api/session", json={"init_data": _init_data({"id": 999})})
     assert r.status == 403  # ro'yxatda yo'q
     r = await client.post("/api/session", json={"token": make_token(1, TOKEN)})
-    assert (await r.json())["is_admin"] is True
+    body = await r.json()
+    assert body["is_admin"] is True and body["movies"] == []
 
 
 async def test_ws_sync_and_signal(client: TestClient):

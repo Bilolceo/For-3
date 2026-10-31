@@ -10,6 +10,7 @@
     player: $("#player"), yt: $("#yt"), empty: $("#empty"), hint: $("#hint"), tap: $("#tap"),
     cam: $("#cam"), mic: $("#mic"), sync: $("#sync"), browserLink: $("#browser-link"),
     sourceForm: $("#source-form"), source: $("#source"),
+    catalog: $("#catalog"), catalogToggle: $("#catalog-toggle"), catalogList: $("#catalog-list"),
     local: $("#local"), remote: $("#remote"), remoteLabel: $("#remote-label"),
   };
 
@@ -43,6 +44,7 @@
     else el.browserLink.hidden = true;
     el.gate.hidden = true;
     el.app.hidden = false;
+    renderCatalog(session.movies || []);
     connect();
     setInterval(driftCheck, 5000);
   }
@@ -175,6 +177,30 @@
     el.empty.hidden = true;
     el.source.value = url;
     hint("");
+  }
+
+  // ── kinolar katalogi (content/movies.json) ───────────────────────────
+  function renderCatalog(movies) {
+    if (!movies.length) return;
+    el.catalog.hidden = false;
+    el.catalogList.innerHTML = "";
+    let lastGroup = null;
+    movies.forEach((m) => {
+      if (m.group && m.group !== lastGroup) {
+        const g = document.createElement("div"); g.className = "catalog-group"; g.textContent = m.group; el.catalogList.appendChild(g);
+        lastGroup = m.group;
+      }
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "catalog-item" + (m.url ? "" : " nolink");
+      b.innerHTML = `<span>${m.title.replace(/[<>&]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;" }[c]))}</span><span class="year">${m.year || ""}</span>`;
+      b.onclick = () => {
+        if (!m.url) { hint(`«${m.title}» uchun havola hali qo'shilmagan (content/movies.json).`, true); return; }
+        send({ type: "source", url: m.url });
+        el.catalogList.hidden = true;
+      };
+      el.catalogList.appendChild(b);
+    });
+    el.catalogToggle.onclick = () => { el.catalogList.hidden = !el.catalogList.hidden; };
   }
 
   // ── sinxronlash ──────────────────────────────────────────────────────
